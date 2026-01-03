@@ -21,6 +21,15 @@
 
 <div class="calendar-page">
 
+<!-- ===============================
+     MOBIL: MÅNED / ÅR OVER KALENDER
+=============================== -->
+<div class="mobile-month">
+  <span id="mobileMonthLabel"></span>
+  <div id="mobileMonthPicker" class="month-picker"></div>
+</div>
+
+
   <!-- ===============================
        VENSTRE: KALENDER
   ================================ -->
@@ -170,33 +179,37 @@
   </div>
 </div>
 
-    <!-- Frie notater -->
-    <div class="notes-section free">
-      <textarea placeholder="Notater for uken…"></textarea>
-    </div>
-
-    <!-- Ukevelger (høyre kolonne) -->
-    <div class="notes-section week">
-      <button id="prevWeek">◀</button>
-      <span id="weekLabel"></span>
-      <button id="nextWeek">▶</button>
-    </div>
-	
-	<div class="notes-section quote">
-  <p id="dailyQuote"></p>
+<!-- Måned / år -->
+<div class="notes-section month">
+  <h2 id="monthLabel"></h2>
 </div>
 
-<div class="notes-section figure">
-<div class="notes-section figure">
-  <img src="bilde.png" alt="" class="calendar-figure">
-</div>
+<!-- RAD: uke + tekst + bilde -->
+<div class="notes-row">
+
+  <div class="notes-section week">
+    <button id="prevWeek">◀</button>
+    <span id="weekLabel"></span>
+    <button id="nextWeek">▶</button>
+  </div>
+
+  <div class="notes-section quote">
+    <p id="dailyQuote"></p>
+  </div>
+
+  <div class="notes-section figure">
+    <img src="bilde.png" class="calendar-figure" />
+  </div>
 
 </div>
 
-
-  </aside>
-
+<!-- Frie notater (nederst, egen blokk) -->
+<div class="notes-title">Notater</div>
+<div class="notes-section free">
+  <textarea placeholder="Notater for uken…"></textarea>
 </div>
+
+
 
 <!-- ===============================
      MODAL: CELLEINNHOLD
@@ -231,12 +244,30 @@
 </label>
 
   
-  <div id="personSelector">
-  <label><input type="checkbox" value="Theodor"> Theodor</label>
-  <label><input type="checkbox" value="Tobias"> Tobias</label>
-  <label><input type="checkbox" value="Vibeke"> Vibeke</label>
-  <label><input type="checkbox" value="Frode"> Frode</label>
+<div id="personSelector" class="create-fields-group">
+
+  <label class="create-fields">
+    <input type="checkbox" value="Theodor">
+    <span>Theodor</span>
+  </label>
+
+  <label class="create-fields">
+    <input type="checkbox" value="Tobias">
+    <span>Tobias</span>
+  </label>
+
+  <label class="create-fields">
+    <input type="checkbox" value="Vibeke">
+    <span>Vibeke</span>
+  </label>
+
+  <label class="create-fields">
+    <input type="checkbox" value="Frode">
+    <span>Frode</span>
+  </label>
+
 </div>
+
 
 
   <div id="editContent"></div>
@@ -262,6 +293,7 @@
 <!-- App -->
 <script src="quotes.js"></script>
 <script src="calendar.js" defer></script>
+
 
 <div id="infoModal" class="info-modal hidden">
   <div class="info-content">

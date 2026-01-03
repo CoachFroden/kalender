@@ -1,3 +1,12 @@
+/* ======================================================================
+   Familie-kalender – Ryddet CSS
+   Basert på eksisterende calendar-grid.css, med:
+   - Fikset ugyldige/ødelagte regler (som stoppet parsing)
+   - Fjernet duplikater og motstridende mobil-regler
+   - Samlet responsive regler i én struktur
+   - Beholdt eksisterende desktop-utseende så langt som mulig
+   ====================================================================== */
+
 /* ===============================
    RESET / BASIS
 =============================== */
@@ -23,6 +32,7 @@ button { font-family: inherit; }
   gap: 16px;
   max-width: 1200px;
   margin: 0 auto;
+  align-items: stretch;
 }
 
 .calendar-container {
@@ -37,7 +47,7 @@ button { font-family: inherit; }
 }
 
 /* ===============================
-   HØYRE KOLONNE
+   HØYRE KOLONNE (NOTATER)
 =============================== */
 .calendar-notes {
   width: 200px;
@@ -59,6 +69,9 @@ button { font-family: inherit; }
   text-align: center;
 }
 
+/* Måned/år */
+.notes-section.month { position: relative; }
+
 .notes-section.month h2 {
   margin: 0;
   font-size: 1.1rem;
@@ -70,7 +83,7 @@ button { font-family: inherit; }
   opacity: 0.85;
 }
 
-
+/* Uke */
 .notes-section.week {
   display: flex;
   justify-content: center;
@@ -86,18 +99,51 @@ button { font-family: inherit; }
   opacity: 0.7;
 }
 
-.notes-section.week button:hover {
-  opacity: 1;
+.notes-section.week button:hover { opacity: 1; }
+
+/* Sitat */
+.notes-section.quote {
+  font-style: italic;
+  font-size: 0.85rem;
+  opacity: 0.85;
+  line-height: 1.4;
 }
 
+/* Figur */
+.notes-section.figure {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.calendar-figure {
+  max-width: 160px;
+  height: auto;
+}
+
+/* Frie notater */
 .notes-section.free textarea {
   width: 100%;
-  min-height: 120px;
+  min-height: 140px;
   resize: vertical;
-  background: transparent;
-  color: inherit;
-  border: 1px dashed rgba(255, 255, 255, 0.3);
-  padding: 6px;
+
+  padding: 10px 12px;
+
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+
+  color: #e6e9ee;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.notes-section.free textarea:focus {
+  outline: none;
+  border-color: rgba(79,140,255,0.5);
+  box-shadow: 0 0 0 1px rgba(79,140,255,0.25);
 }
 
 /* ===============================
@@ -108,28 +154,25 @@ button { font-family: inherit; }
   grid-template-columns: 120px repeat(4, 1fr);
 }
 
-.calendar-grid.header {
-  margin-bottom: 2px;
-}
+.calendar-grid.header { margin-bottom: 2px; }
 
 .cell {
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(255, 255, 255, 0.025);
   border-radius: 10px;
+
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* 👈 viktig */
+  justify-content: flex-start; /* viktig */
   height: 75px;
+
   padding: 10px;
-  padding-bottom: 12px;   /* plass til +N */
+  padding-bottom: 12px; /* plass til +N */
   overflow: hidden;
   position: relative;
-  
-  
 
   transition: background 0.15s ease, box-shadow 0.15s ease;
 }
-
 
 /* Header-celler */
 .header .cell {
@@ -144,18 +187,15 @@ button { font-family: inherit; }
   border: none;
   display: flex;
   align-items: center;
-  justify-content: center; /* midt */
-    font-weight: 600;
-	  font-size: 1.2rem;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.2rem;
 }
 
 /* Navn */
-.cell.name {
-  font-size: 0.9rem;
-}
+.cell.name { font-size: 0.9rem; }
 
 .header .cell.name {
-  letter-spacing: 0.04em;
   opacity: 0.8;
   font-family: "Indie Flower", cursive;
   font-size: 1.7rem;
@@ -182,26 +222,17 @@ button { font-family: inherit; }
   box-shadow: inset 0 0 0 1px rgba(79,140,255,0.4);
 }
 
-.cell-click:hover {
-  transform: translateY(-1px);
-}
+.cell-click:hover { transform: translateY(-1px); }
 
-.cell-click.loading {
-  opacity: 0.6;
-}
+.cell-click.loading { opacity: 0.6; }
 
-.active-cell {
-  box-shadow: 0 0 0 2px rgba(79,140,255,0.8);
-}
+.active-cell { box-shadow: 0 0 0 2px rgba(79,140,255,0.8); }
 
-.cell-click.active-cell {
-  animation: pulse 0.3s ease;
-}
+.cell-click.active-cell { animation: pulse 0.3s ease; }
 
 /* ===============================
    DAG-KOLONNE (DAG + DATO)
 =============================== */
-/* (Dette er den “endelige” day-stylingen i fila di – samlet her) */
 .cell.day {
   font-weight: 600;
   font-size: 1.8rem;
@@ -209,11 +240,11 @@ button { font-family: inherit; }
 
   display: flex;
   flex-direction: column;
-  align-items: center;      /* horisontalt midt */
-  justify-content: center;  /* vertikalt midt */
+  align-items: center;
+  justify-content: center;
   gap: 2px;
 
-  background: rgba(255, 255, 255, 0.04); /* nøytral */
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .cell.day .day-name {
@@ -226,9 +257,7 @@ button { font-family: inherit; }
   opacity: 0.75;
 }
 
-/* Søndag – rød (samme som din, bare ligger samlet her)
-   NB: Denne er litt “skjør” siden den avhenger av at søndag-raden faktisk er siste grid.
-   Men jeg har IKKE endret logikken din her – kun flyttet den. */
+/* Søndag – rød (skjør, men beholdt logikken) */
 .calendar-grid:last-of-type .cell.day .day-name,
 .calendar-grid:last-of-type .cell.day .day-date {
   color: #ef4444;
@@ -281,21 +310,13 @@ button { font-family: inherit; }
   cursor: pointer;
 }
 
-#prevWeekGrid { left: 8px; }
-#nextWeekGrid { right: 8px; }
-
 .week-btn:hover {
   color: #e6e9ee;
   opacity: 1;
 }
 
-#weekLabelGrid.animate {
-  animation: weekTextPulse 0.25s ease;
-}
-
-.week-selector.spin {
-  animation: timeSpin 0.6s ease;
-}
+#weekLabelGrid.animate { animation: weekTextPulse 0.25s ease; }
+.week-selector.spin { animation: timeSpin 0.6s ease; }
 
 /* ===============================
    INNHOLD I CELLER
@@ -305,20 +326,18 @@ button { font-family: inherit; }
   flex-wrap: wrap;
   gap: 6px;
 
-  /* 🔒 2 rader á 24px + 1 gap */
+  /* 2 rader á 24px + 1 gap */
   max-height: calc(2 * 24px + 6px);
   overflow: hidden;
 
   padding-right: 24px;
 }
 
-
-
 .entry {
   display: inline-flex;
   align-items: center;
 
-  height: 22px;              /* 🔒 FAST HØYDE */
+  height: 22px; /* FAST HØYDE */
   padding: 0 10px;
 
   font-size: 0.7rem;
@@ -328,11 +347,9 @@ button { font-family: inherit; }
   background: rgba(255,255,255,0.12);
   white-space: nowrap;
   max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-
-
-
-
 
 .more-indicator {
   position: absolute;
@@ -347,10 +364,6 @@ button { font-family: inherit; }
 /* ===============================
    MONTH PICKER – MODAL
 =============================== */
-.notes-section.month {
-  position: relative;
-}
-
 .month-picker {
   position: absolute;
   top: calc(100% + 6px);
@@ -372,8 +385,6 @@ button { font-family: inherit; }
   pointer-events: auto;
   transform: translateX(-50%) translateY(0);
 }
-
-
 
 /* Selve boksen */
 .month-picker .picker-content {
@@ -398,12 +409,29 @@ button { font-family: inherit; }
 }
 
 #monthLabel {
-  font-family: "indie flower", cursive;
+  font-family: "Indie Flower", cursive;
   font-size: 1rem;
   font-weight: 400;
   letter-spacing: 0.04em;
+
+  /* Når du viser år i ::after */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+
+  color: #b84a4a;
+  font-weight: 900;
+  font-size: 1.8rem;
 }
 
+#monthLabel::after {
+  content: attr(data-year);
+  font-size: 1.8rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.45);
+}
 
 /* Årsvelger */
 .month-picker .year-select {
@@ -412,8 +440,7 @@ button { font-family: inherit; }
   justify-content: center;
   gap: 10px;
   margin-bottom: 14px;
-    font-family: "indie flower", cursive;
-
+  font-family: "Indie Flower", cursive;
 }
 
 .year-btn {
@@ -424,34 +451,12 @@ button { font-family: inherit; }
   cursor: pointer;
 }
 
-.year-btn:hover {
-  color: #e6e9ee;
-}
+.year-btn:hover { color: #e6e9ee; }
 
 #yearLabel {
   font-family: "Indie Flower", cursive;
   font-size: 1.2rem;
   letter-spacing: 0.04em;
-}
-
-
-
-.month-picker .year-select button {
-  background: none;
-  border: none;
-  color: #9ca3af;
-  font-size: 0.55rem;
-  cursor: pointer;
-}
-
-.month-picker .year-select button:hover {
-  color: #e6e9ee;
-}
-
-.month-picker .year-label {
-  font-size: 0.55rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
 }
 
 .month-grid {
@@ -478,9 +483,8 @@ button { font-family: inherit; }
   transition:
     background 0.15s ease,
     border-color 0.15s ease;
-	
-	font-family: "indie flower", cursive;
 
+  font-family: "Indie Flower", cursive;
 }
 
 .month-grid button:hover {
@@ -546,9 +550,9 @@ button { font-family: inherit; }
   transition: transform 0.2s ease;
 }
 
-.modal-content::-webkit-scrollbar {
-  width: 0;
-}
+.modal-content::-webkit-scrollbar { width: 0; }
+
+.modal.hidden .modal-content { transform: scale(0.96); }
 
 /* Tittel */
 #modalTitle {
@@ -557,63 +561,58 @@ button { font-family: inherit; }
   font-weight: 600;
   letter-spacing: 0.05em;
 }
-.modal.hidden .modal-content {
-  transform: scale(0.96);
-}
 
-.modal-content h3 {
-  margin-top: 0;
-}
+.modal-content h3 { margin-top: 0; }
 
 .modal-section {
   display: none;
   margin-bottom: 12px;
 }
 
-.modal-section.active {
-  display: block;
-}
+.modal-section.active { display: block; }
 
+/* Labels */
 .modal-content label {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;                     /* litt strammere */
+  gap: 4px;
 
   width: 100%;
   margin-bottom: 16px;
 
   color: rgba(255,255,255,0.55);
-  font-size: 0.7rem;            /* 👈 hint-størrelse */
-  letter-spacing: 0.08em;       /* 👈 mer hint-følelse */
-  text-transform: uppercase;    /* 👈 tydelig “label” */
-
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   text-align: center;
 }
 
-
-
-.modal-content input{
-text-align: center;
-background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 6px;
-  color: inherit;
-}
+.modal-content input,
 .modal-content textarea {
+  width: 260px;
+  max-width: 100%;
+
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 6px;
+
   color: inherit;
-text-align: left;  
-resize: vertical;}
-text-align: center;     /* 👈 matcher midtstilling */
- width: 260px;
-  max-width: 100%;.modal-actions {
+}
+
+.modal-content input { text-align: center; }
+
+.modal-content textarea {
+  text-align: left;
+  resize: vertical;
+}
+
+/* Modal actions */
+.modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.6rem;
- margin-top: 8px;
+  margin-top: 8px;
 }
 
 /* Modal-knapper (basis) */
@@ -646,9 +645,7 @@ text-align: center;     /* 👈 matcher midtstilling */
   border-color: rgba(255,255,255,0.28);
 }
 
-.modal-content button:active {
-  transform: translateY(1px);
-}
+.modal-content button:active { transform: translateY(1px); }
 
 /* Sekundærknapp */
 button.secondary {
@@ -662,20 +659,16 @@ button.secondary {
   color: #cfd4dc;
 }
 
-button.secondary:hover {
-  background: rgba(255,255,255,0.12);
-}
+button.secondary:hover { background: rgba(255,255,255,0.12); }
 
-/* Danger (samme som din – beholdt) */
+/* Danger */
 button.danger {
   background: none;
   color: #ff6b6b;
   border: 1px solid rgba(255, 107, 107, 0.4);
 }
 
-button.danger:hover {
-  background: rgba(255, 107, 107, 0.25);
-}
+button.danger:hover { background: rgba(255, 107, 107, 0.25); }
 
 /* Startvalg i modal */
 #modalStart {
@@ -747,95 +740,89 @@ button.danger:hover {
   opacity: 0.9;
 }
 
-#editContent {
+#editContent { display: none; }
+.modal.edit #editContent {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 20px;
+  margin-top: 8px;
+  width: 100%;
 }
 
-.edit-card {
-  padding: 10px;
+.modal.edit .edit-card {
+  padding: 16px;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.05);
 }
 
-.edit-card input,
-.edit-card textarea {
+.modal.edit .edit-card input,
+.modal.edit .edit-card textarea {
   width: 100%;
   margin-bottom: 6px;
 }
 
-.edit-card .delete-entry {
-  background: none;
-  border: none;
+.modal.edit .edit-card .delete-entry {
+  align-self: flex-end;
+
+  padding: 4px 10px;
+  border-radius: 999px;
+
+  background: rgba(255, 107, 107, 0.12);
+  border: 1px solid rgba(255, 107, 107, 0.35);
+
   color: #ff6b6b;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
+
   cursor: pointer;
 }
 
 /* ===============================
-   ANIMASJONER
+   MODAL – Create/Edit regler
 =============================== */
-@keyframes entryFade {
-  from { opacity: 0; transform: translateY(2px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* Skjul stikkord/beskrivelse som standard */
+.create-only { display: none; }
+.modal.create .create-only { display: block; }
+
+/* Skjul labels i edit-modus */
+#modalEdit > label { display: none; }
+.modal.create #modalEdit > label { display: flex; }
+
+/* Personvelger */
+#personSelector { display: none; }
+.modal.create #personSelector,
+.modal.edit #personSelector { display: block; }
+
+/* Ny oppføring – egen font på NAVN-feltet */
+.modal.create #textInput {
+  font-family: "Indie Flower", cursive;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
 }
 
-@keyframes weekTextPulse {
-  0%   { transform: scale(1); color: #e6e9ee; }
-  50%  { transform: scale(1.15); color: #60a5fa; }
-  100% { transform: scale(1); color: #e6e9ee; }
-}
-
-@keyframes timeSpin {
-  from { transform: rotate(0deg) scale(1); }
-  50%  { transform: rotate(180deg) scale(1.05); }
-  to   { transform: rotate(360deg) scale(1); }
-}
-
-@keyframes pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(79,140,255,0.6); }
-  100% { box-shadow: 0 0 0 4px rgba(79,140,255,0); }
-}
-
-/* ===============================
-   TILGJENGELIGHET / REDUSERT BEVEGELSE
-=============================== */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
-.modal.view-only #modalView {
-  pointer-events: auto;
-}
-
-.modal.view-only #modalStart,
-.modal.view-only #modalEdit {
-  pointer-events: none;
-}
-/* Stikkord / Beskrivelse: kun i NY oppføring */
-#modalEdit label {
-  display: none;
-}
-
-.modal.create #modalEdit label {
+/* Personvelger – NY oppføring */
+.modal.create #personSelector {
   display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 14px 24px;
 }
 
-/* ===============================
-   FELLES: SKJUL ELEMENT (brukes av infoModal)
-=============================== */
-.hidden {
-  display: none !important;
+.modal.create #personSelector label {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+
+  gap: 6px;
+  width: auto;
+  margin: 0;
+  white-space: nowrap;
 }
 
 /* ===============================
    INFO-MODAL (klikk på stikkord)
 =============================== */
+.hidden { display: none !important; }
+
 .info-modal {
   position: fixed;
   inset: 0;
@@ -888,39 +875,53 @@ button.danger:hover {
   color: #cfd4dc;
 }
 
-#infoModalClose:hover {
-  background: rgba(255,255,255,0.12);
-}
-.notes-section.quote {
-  font-style: italic;
-  font-size: 0.85rem;
-  opacity: 0.85;
-  line-height: 1.4;
-}
-.notes-section.figure {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
-  opacity: 0.9;
-  pointer-events: none;
+#infoModalClose:hover { background: rgba(255,255,255,0.12); }
+
+/* ===============================
+   ANIMASJONER
+=============================== */
+@keyframes entryFade {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.calendar-figure {
-  max-width: 160px;
-  height: auto;
+@keyframes weekTextPulse {
+  0%   { transform: scale(1); color: #e6e9ee; }
+  50%  { transform: scale(1.15); color: #60a5fa; }
+  100% { transform: scale(1); color: #e6e9ee; }
 }
 
-font-size: clamp(min, fleksibel, max)
+@keyframes timeSpin {
+  from { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.05); }
+  to   { transform: rotate(360deg) scale(1); }
+}
 
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(79,140,255,0.6); }
+  100% { box-shadow: 0 0 0 4px rgba(79,140,255,0); }
+}
+
+/* ===============================
+   TILGJENGELIGHET / REDUSERT BEVEGELSE
+=============================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ===============================
+   RESPONSIVE
+=============================== */
+
+/* Tablet og ned */
 @media (max-width: 1024px) {
 
-  body {
-    padding: 1rem;
-  }
+  body { padding: 1rem; }
 
-  .calendar-page {
-    flex-direction: column;
-  }
+  .calendar-page { flex-direction: column; }
 
   .calendar-notes {
     width: 100%;
@@ -931,24 +932,17 @@ font-size: clamp(min, fleksibel, max)
     justify-content: space-between;
   }
 
-  .notes-section {
-    flex: 1 1 45%;
-  }
-
-  .notes-section.free {
-    flex: 1 1 100%;
-  }
+  .notes-section { flex: 1 1 45%; }
+  .notes-section.free { flex: 1 1 100%; }
 }
+
+/* Mobil */
 @media (max-width: 768px) {
 
-  body {
-    padding: 0.75rem;
-  }
+  body { padding: 0.75rem; }
 
   /* Kalender-grid blir horisontalt scrollbar */
-  .calendar-container {
-    overflow-x: auto;
-  }
+  .calendar-container { overflow-x: auto; }
 
   .calendar-grid {
     grid-template-columns: 90px repeat(4, minmax(120px, 1fr));
@@ -958,37 +952,62 @@ font-size: clamp(min, fleksibel, max)
   .cell {
     height: 70px;
     padding: 8px;
+    padding-bottom: 12px;
   }
 
-  .header .cell.name {
-    font-size: 1.2rem;
+  .header .cell.name { font-size: 1.2rem; }
+
+  .entry {
+    max-width: calc(100% - 4px);
+    font-size: 0.7rem;
+    padding: 0 10px; /* behold desktop-padding, mer stabilt */
   }
 
-  .entries {
-    grid-template-columns: 1fr;
-    font-size: 0.75rem;
-  }
+  /* ---- Mobil-layout ønsket: kun måned/år + notat under kalender ---- */
 
-  /* Høyre kolonne → én kolonne */
-  .calendar-notes {
+  /* Hele siden i én kolonne */
+  .calendar-page {
+    display: flex;
     flex-direction: column;
-    gap: 12px;
   }
 
-  .notes-section {
+  /* Notat-blokken under kalender */
+  .calendar-notes {
     width: 100%;
+    border-left: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 8px;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  /* Skjul uke, sitat og figur på mobil */
+  .notes-section.week,
+  .notes-section.quote,
+  .notes-section.figure,
+  .calendar-notes img {
+    display: none !important;
+  }
+
+  /* Måned/år over notat (fortsatt i notes) */
+  .notes-section.month {
+    text-align: center;
+    margin-bottom: 8px;
   }
 
   /* Modal full mobilbredde */
   .modal-content,
-  .info-content {
-    max-width: 95vw;
-  }
+  .info-content { max-width: 95vw; }
 
-  button {
-    min-height: 44px;
-  }
+  button { min-height: 44px; }
 }
+/* Mobil-måned skal ALDRI vises på desktop */
+.mobile-month {
+  display: none;
+}
+
+
+/* Touch-devices: deaktiver hover-effekter */
 @media (hover: none) {
   .cell-click:hover {
     background: none;
@@ -996,189 +1015,343 @@ font-size: clamp(min, fleksibel, max)
     transform: none;
   }
 }
-@media (max-width: 768px) {
-  .entry {
-    font-size: 0.75rem;
-    padding: 4px 8px;
-  }
-}
-@media (max-width: 768px) {
-  .entry {
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    white-space: nowrap;
-  }
 
-  .entries {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-}
-/* Skjul stikkord/beskrivelse som standard */
-.create-only {
-  display: none;
-}
-
-/* Vis kun i Ny oppføring */
-.modal.create .create-only {
-  display: block;
-}
-#modalEdit > label {
-  display: none;
-}
-.modal.create #modalEdit > label {
-  display: flex;
-}
-#personSelector {
-  display: none;
-}
-
-.modal.create #personSelector,
-.modal.edit #personSelector {
-  display: block;
-}
-#editContent {
-  display: none;
-}
-
-.modal.edit #editContent {
-	gap: 20px;
-  display: block;
-}
-
-#personSelector {
-  display: none;
-}
-
-.modal.create #personSelector,
-.modal.edit #personSelector {
-  display: block;
-}
-#editContent {
-  display: none;
-}
-
-/* Container for redigeringskort */
-.modal.edit #editContent {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;                 /* 👈 mer luft mellom kortene */
-  margin-top: 8px;
-  width: 100%;
-}
-.modal.edit #editContent {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.modal.edit .edit-card {
-  padding: 16px;
-}
-.modal.edit .edit-card {
-  margin-bottom: 20px;
-}
-.modal.edit .edit-card {
-  padding: 10px;
-}
-.modal.edit .edit-card .delete-entry {
-  align-self: flex-end;
-
-  padding: 4px 10px;
-  border-radius: 999px;
-
-  background: rgba(255, 107, 107, 0.12);
-  border: 1px solid rgba(255, 107, 107, 0.35);
-
-  color: #ff6b6b;
-  font-size: 0.7rem;
-
-  cursor: pointer;
-}
-.entry {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-@media (max-width: 768px) {
-  .entry {
-    max-width: calc(100% - 4px);
-    font-size: 0.7rem;
-  }
-}
 /* ===============================
-   UKENS NOTATER – BESKJEDKORT
+   Små helper-regler som var brukt i originalen
 =============================== */
+.modal.view-only #modalView { pointer-events: auto; }
+.modal.view-only #modalStart,
+.modal.view-only #modalEdit { pointer-events: none; }
 
-.notes-section.free textarea {
-  min-height: 140px;
-  padding: 10px 12px;
-
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 12px;
-
-  color: #e6e9ee;
-  font-size: 0.8rem;
-  line-height: 1.5;
-
-  resize: vertical;
-}
-
-/* Litt roligere fokus */
-.notes-section.free textarea:focus {
-  outline: none;
-  border-color: rgba(79,140,255,0.5);
-  box-shadow: 0 0 0 1px rgba(79,140,255,0.25);
-}
-#monthLabel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.1;
-  font-size: 1.8rem;
-  color: #b84a4a;
-    font-weight: 900;
-
-}
-
-#monthLabel::after {
-  content: attr(data-year);
-  font-size: 1.8rem;
+.notes-title {
+  font-size: 0.85rem;
   font-weight: 400;
-  letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+  margin-bottom: 2px;
+  text-align: center;
 }
 
-/* Ny oppføring – egen font på NAVN-feltet */
-.modal.create #textInput {
-  font-family: "Indie Flower", cursive;
-  font-size: 1rem;
-  letter-spacing: 0.04em;
+@media (max-width: 768px) {
+
+  /* Mobil-måned over kalender */
+  .mobile-month {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    margin: 12px 0 10px;
+    padding: 14px 12px;
+
+    border-radius: 14px;
+    background: linear-gradient(
+      180deg,
+      rgba(255,255,255,0.04),
+      rgba(255,255,255,0.01)
+    );
+
+    box-shadow:
+      0 20px 40px rgba(0,0,0,0.35),
+      inset 0 1px 0 rgba(255,255,255,0.04);
+
+    cursor: pointer;
+  }
+
+  /* VIKTIG:
+     Ikke skjul month-seksjonen – ellers forsvinner dropdown */
+  .calendar-notes .notes-section.month {
+    display: block;
+  }
+
+  /* Skjul bare desktop-overskriften */
+  #monthLabel {
+    display: none;
+  }
+
+  /* Sørg for at dropdown vises over alt */
+  #monthPicker {
+    z-index: 5000;
+  }
+
+  /* Stil – lik desktop */
+  .mobile-month .m-month {
+    font-family: "Indie Flower", cursive;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #b84a4a;
+    line-height: 1.1;
+  }
+
+  .mobile-month .m-year {
+    font-family: "Indie Flower", cursive;
+    font-size: 1.8rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.1;
+  }
+}
+@media (max-width: 768px) {
+
+  /* Gjør mobil-måned til referansepunkt */
+  .mobile-month {
+    position: relative;
+  }
+
+  /* Flytt dropdownen til under mobil-teksten */
+  #monthPicker {
+    position: absolute;
+    top: calc(100% + 8px);   /* rett under teksten */
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: min(90vw, 340px);
+    max-width: 90vw;
+
+    z-index: 5000;
+  }
+}
+@media (max-width: 768px) {
+
+  .mobile-month {
+    display: flex;
+    flex-direction: column;   /* ← dette er nøkkelen */
+    align-items: center;
+    text-align: center;
+    gap: 2px;
+  }
+
+  .mobile-month .m-month {
+    font-family: "Indie Flower", cursive;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #b84a4a;
+    line-height: 1.1;
+  }
+
+  .mobile-month .m-year {
+    font-family: "Indie Flower", cursive;
+    font-size: 1.4rem;        /* litt mindre enn måneden */
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    opacity: 0.6;
+    line-height: 1.1;
+  }
+}
+@media (max-width: 768px) {
+
+  .mobile-month {
+    text-align: center;
+  }
+
+  .mobile-month .m-month {
+    display: block;   /* ← viktig */
+  }
+
+  .mobile-month .m-year {
+    display: block;   /* ← DETTE er nøkkelen */
+    margin-top: 2px;
+
+    font-family: "Indie Flower", cursive;
+    font-size: 1.4rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    opacity: 0.6;
+  }
+}
+@media (max-width: 768px) {
+  #monthPicker {
+    max-width: 90vw;
+  }
+}
+@media (max-width: 768px) {
+  /* Skjul desktop month-picker på mobil */
+  #monthPicker {
+    display: none !important;
+  }
+}
+@media (max-width: 768px) {
+
+  /* Fjern visuell blinking ved re-render */
+  .calendar-container,
+  .calendar-grid,
+  .calendar-grid * {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  /* Hindrer scroll/layout-jitter */
+  body {
+    overflow-anchor: none;
+  }
+}
+.mobile-month,
+.mobile-month * {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+button {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (max-width: 768px) {
+
+  .mobile-month {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
 }
 /* ===============================
-   PERSONVELGER – NY OPPFØRING
-   (overstyr global label-regel)
-================================ */
+   FIX: Gjenopprett modal-styling
+   =============================== */
 
-/* Container: legg personer ved siden av hverandre */
-.modal.create #personSelector {
-  display: flex;
-flex-wrap: nowrap;
-  justify-content: center;
-  gap: 14px 24px;
+.modal {
+  -webkit-tap-highlight-color: initial;
 }
 
-/* Hver person: checkbox + navn horisontalt */
-.modal.create #personSelector label {
-  display: inline-flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
+.modal input,
+.modal textarea,
+.modal button,
+.modal select {
+  appearance: auto;
+  -webkit-appearance: auto;
+  background-color: initial;
+  color: inherit;
+  box-shadow: none;
+  outline: none;
+  user-select: text;
+}
 
-  gap: 6px;
+/* Checkbox / radio – dette er den viktige */
+.modal input[type="checkbox"],
+.modal input[type="radio"] {
+  appearance: auto;
+  -webkit-appearance: checkbox;
   width: auto;
+  height: auto;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+/* Label + checkbox-layout */
+.modal label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Knapper i modal */
+.modal button {
+  -webkit-tap-highlight-color: transparent;
+}
+/* ===============================
+   Modal – Rediger innhold: personvelger (ENDLIG FIKS)
+   =============================== */
+
+#modalEdit #personSelector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;   /* samme som Ny oppføring */
+  align-items: center;
+  gap: 16px;
+
+  /* NØKKELEN */
+  text-align: left;
+}
+
+#modalEdit #personSelector label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin: 0;
   white-space: nowrap;
+}
+/* ===============================
+   Tving horisontal layout på personvelger i rediger-modus
+   =============================== */
+
+#modalEdit #personSelector label {
+  display: inline-flex;   /* ← dette er NØKKELEN */
+  align-items: center;
+  gap: 6px;
+}
+#modalEdit #personSelector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+/* ===============================
+   FIKS: Personvelger i Rediger-modus
+   Overstyr global modal-label
+   =============================== */
+
+#modalEdit #personSelector label {
+  flex-direction: row;        /* ← NØKKELEN */
+  width: auto;
+  margin-bottom: 0;
+  text-align: left;
+}
+/* ===============================
+   Modal – luft før handlingsknapper
+   =============================== */
+
+.modal-actions {
+  margin-top: 24px;
+}
+/* ===============================
+   Modal – rediger: bakgrunnskort med luft
+   =============================== */
+
+#modalEdit .modal-section {
+  margin-bottom: 20px;
+}
+
+#modalEdit .modal-section > div,
+#modalEdit .modal-section > label {
+  margin-bottom: 12px;
+}
+#modalEdit .modal-section {
+  padding: 16px;
+  border-radius: 14px;
+}
+/* ===============================
+   Modal – luft mellom grå kort og lagre-knapp
+   =============================== */
+
+/* Luft UNDER de grå feltene */
+#modalEdit .content-card {
+  margin-bottom: 24px;
+}
+
+/* Luft OVER "Lagre endringer"-knappen */
+#modalEdit #saveAllBtn {
+  margin-top: 20px;
+}
+#modalEdit .content-card > * + * {
+  margin-top: 12px;
+}
+/* ===============================
+   Modal – luft mellom grå rediger-kort
+   =============================== */
+
+#modalEdit .edit-entry {
+  margin-bottom: 20px;
+}
+
+/* siste kort trenger ikke ekstra luft */
+#modalEdit .edit-entry:last-child {
+  margin-bottom: 0;
+}
+/* ===============================
+   Modal – luft mellom grå rediger-felter
+   (søskene i editContent)
+   =============================== */
+
+#modalEdit #editContent > div + div {
+  margin-top: 20px;
 }

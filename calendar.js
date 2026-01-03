@@ -400,9 +400,20 @@ function updateMonthLabel() {
 
   const year = activeWeekStart.getFullYear();
 
+  // Desktop (høyre kolonne)
   ml.textContent = month.toUpperCase();
   ml.dataset.year = year;
+
+  // Mobil (over kalenderen)
+  const mobileMonthLabel = document.getElementById("mobileMonthLabel");
+  if (mobileMonthLabel) {
+    mobileMonthLabel.innerHTML = `
+      <span class="m-month">${month.toUpperCase()}</span>
+      <span class="m-year">${year}</span>
+    `;
+  }
 }
+
 
 
 function getWeekNumber(date) {
@@ -892,18 +903,36 @@ function updateYearLabel() {
 updateYearLabel();
 
 if (prevYearBtn) {
-  prevYearBtn.addEventListener("click", () => {
+  prevYearBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // holder dropdown stabil
+
     activeYear--;
-    updateYearLabel();
+
+    // hold kalenderens "sannhet" i sync med dropdown-året
+    activeWeekStart = firstMondayInMonth(activeYear, activeWeekStart.getMonth());
+
+    updateYearLabel();      // ← oppdaterer årstallet i dropdownen
+    updateMonthLabel();     // ← oppdaterer DES/2027-teksten
+    refreshCalendar();      // ← oppdaterer datoene i rutenettet
   });
 }
 
 if (nextYearBtn) {
-  nextYearBtn.addEventListener("click", () => {
+  nextYearBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     activeYear++;
+
+    activeWeekStart = firstMondayInMonth(activeYear, activeWeekStart.getMonth());
+
     updateYearLabel();
+    updateMonthLabel();
+    refreshCalendar();
   });
 }
+
 
 
 if (yearSelect) {
@@ -942,7 +971,7 @@ document.querySelectorAll(".month-grid button").forEach(btn => {
     const month = Number(btn.dataset.month);
 const year = activeYear;
 
-    activeWeekStart = getMonday(new Date(year, month, 1));
+    activeWeekStart = firstMondayInMonth(year, month);
     refreshCalendar();
     closeMonthPicker();
   });
@@ -1035,6 +1064,112 @@ function showDailyQuote() {
 }
 
 showDailyQuote();
+
+function firstMondayInMonth(year, month) {
+  const d = new Date(year, month, 1);
+  const day = d.getDay(); // 0=søn, 1=man, ...
+  const offset = (day === 0 ? 1 : (8 - day)) % 7;
+  d.setDate(d.getDate() + offset);
+  d.setHours(12, 0, 0, 0);
+  return d;
+}
+
+// ===============================
+// MOBIL: Egen dropdown som ikke påvirker PC
+// ===============================
+(function mobileMonthPicker() {
+  const desktopPicker = document.getElementById("monthPicker");
+  const desktopYearLabel = document.getElementById("yearLabel");
+
+  const mobileLabel = document.getElementById("mobileMonthLabel");
+  const mobilePicker = document.getElementById("mobileMonthPicker");
+
+  if (!desktopPicker || !mobileLabel || !mobilePicker) return;
+
+  // 1) Kopier innhold fra desktop (HTML)
+  mobilePicker.innerHTML = desktopPicker.innerHTML;
+
+  // 2) Åpne/lukk mobil-dropdown
+mobileLabel.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopImmediatePropagation(); // ← VIKTIG
+  mobilePicker.classList.toggle("open");
+  syncYearLabel();
+});
+;
+
+  // 3) Videresend klikk på knapper til desktop-picker
+mobilePicker.addEventListener("click", (e) => {
+  e.stopPropagation();
+
+  const btn = e.target.closest("button");
+  if (!btn) return;
+
+  e.preventDefault();
+
+  // 1) Måned-knapper → bruk desktop click (skal lukke)
+if (btn.dataset.month !== undefined) {
+  const y = activeWeekStart.getFullYear();
+  const m = Number(btn.dataset.month);
+
+  activeWeekStart = firstMondayInMonth(y, m);
+
+  updateMonthLabel();
+  syncYearLabel();
+  refreshCalendar();
+
+  mobilePicker.classList.remove("open");
+  return;
+}
+
+  // 2) År-piler → endre år uten å lukke dropdown
+if (btn.id === "prevYear" || btn.id === "nextYear") {
+  const delta = btn.id === "prevYear" ? -1 : 1;
+
+  const y = activeWeekStart.getFullYear() + delta;
+  const m = activeWeekStart.getMonth();
+
+  activeWeekStart = firstMondayInMonth(y, m);
+
+  updateMonthLabel();
+  syncYearLabel();
+  refreshCalendar();
+  return;
+ }
+
+});
+
+
+function syncYearLabel() {
+  const year = activeWeekStart.getFullYear();
+
+  // Oppdater år i mobil-dropdown
+  const mobileYear = mobilePicker.querySelector("#yearLabel");
+  if (mobileYear) {
+    mobileYear.textContent = year;
+  }
+
+  // Oppdater år i teksten over kalenderen
+  const yearSpan = mobileLabel.querySelector(".m-year");
+  if (yearSpan) {
+    yearSpan.textContent = year;
+  }
+}
+
+
+ document.addEventListener("click", (e) => {
+  if (
+    mobilePicker.contains(e.target) ||
+    mobileLabel.contains(e.target)
+  ) {
+    return; // klikk inni → ikke lukk
+  }
+
+  mobilePicker.classList.remove("open");
+});
+
+})();
+
 
 // ===============================
 // Init
