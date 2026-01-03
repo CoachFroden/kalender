@@ -1,0 +1,1184 @@
+/* ===============================
+   RESET / BASIS
+=============================== */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 2rem;
+  font-weight: 400;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #0f131a;
+  color: #e6e9ee;
+}
+
+button { font-family: inherit; }
+
+/* ===============================
+   LAYOUT
+=============================== */
+.calendar-page {
+  display: flex;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.calendar-container {
+  flex: 1;
+  background: rgba(255,255,255,0.02);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+/* ===============================
+   HØYRE KOLONNE
+=============================== */
+.calendar-notes {
+  width: 200px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.04),
+    rgba(255,255,255,0.01)
+  );
+  border-left: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+}
+
+.notes-section {
+  text-align: center;
+}
+
+.notes-section.month h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.notes-section.month h2:hover {
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+
+.notes-section.week {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.notes-section.week button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.notes-section.week button:hover {
+  opacity: 1;
+}
+
+.notes-section.free textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  background: transparent;
+  color: inherit;
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  padding: 6px;
+}
+
+/* ===============================
+   GRID
+=============================== */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 120px repeat(4, 1fr);
+}
+
+.calendar-grid.header {
+  margin-bottom: 2px;
+}
+
+.cell {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* 👈 viktig */
+  height: 75px;
+  padding: 10px;
+  padding-bottom: 12px;   /* plass til +N */
+  overflow: hidden;
+  position: relative;
+  
+  
+
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+
+/* Header-celler */
+.header .cell {
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Hjørnecelle */
+.cell.corner {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* midt */
+    font-weight: 600;
+	  font-size: 1.2rem;
+}
+
+/* Navn */
+.cell.name {
+  font-size: 0.9rem;
+}
+
+.header .cell.name {
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+  font-family: "Indie Flower", cursive;
+  font-size: 1.7rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+}
+
+/* Navn-farger i header */
+.header .cell.name:nth-child(2) { color: #7dd3fc; } /* Theodor */
+.header .cell.name:nth-child(3) { color: #86efac; } /* Tobias */
+.header .cell.name:nth-child(4) { color: #f9a8d4; } /* Vibeke */
+.header .cell.name:nth-child(5) { color: #fde68a; } /* Frode */
+
+/* Klikkbare celler */
+.cell-click {
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.calendar-grid:not(.header) .cell-click:hover {
+  background: rgba(79, 140, 255, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(79,140,255,0.4);
+}
+
+.cell-click:hover {
+  transform: translateY(-1px);
+}
+
+.cell-click.loading {
+  opacity: 0.6;
+}
+
+.active-cell {
+  box-shadow: 0 0 0 2px rgba(79,140,255,0.8);
+}
+
+.cell-click.active-cell {
+  animation: pulse 0.3s ease;
+}
+
+/* ===============================
+   DAG-KOLONNE (DAG + DATO)
+=============================== */
+/* (Dette er den “endelige” day-stylingen i fila di – samlet her) */
+.cell.day {
+  font-weight: 600;
+  font-size: 1.8rem;
+  opacity: 0.9;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;      /* horisontalt midt */
+  justify-content: center;  /* vertikalt midt */
+  gap: 2px;
+
+  background: rgba(255, 255, 255, 0.04); /* nøytral */
+}
+
+.cell.day .day-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.cell.day .day-date {
+  font-size: 1rem;
+  opacity: 0.75;
+}
+
+/* Søndag – rød (samme som din, bare ligger samlet her)
+   NB: Denne er litt “skjør” siden den avhenger av at søndag-raden faktisk er siste grid.
+   Men jeg har IKKE endret logikken din her – kun flyttet den. */
+.calendar-grid:last-of-type .cell.day .day-name,
+.calendar-grid:last-of-type .cell.day .day-date {
+  color: #ef4444;
+}
+
+/* ===============================
+   UKEVELGER (GRID)
+=============================== */
+.week-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+
+  padding: 0;
+}
+
+.week-selector::before,
+.week-selector::after {
+  content: none !important;
+}
+
+#weekLabelGrid {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+#weekLabel {
+  position: relative;
+  z-index: 2;
+
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: white;
+  pointer-events: none;
+}
+
+.week-btn {
+  background: none;
+  border: none;
+  color: #9ca3af;
+
+  font-size: 0.65rem;
+  cursor: pointer;
+}
+
+#prevWeekGrid { left: 8px; }
+#nextWeekGrid { right: 8px; }
+
+.week-btn:hover {
+  color: #e6e9ee;
+  opacity: 1;
+}
+
+#weekLabelGrid.animate {
+  animation: weekTextPulse 0.25s ease;
+}
+
+.week-selector.spin {
+  animation: timeSpin 0.6s ease;
+}
+
+/* ===============================
+   INNHOLD I CELLER
+=============================== */
+.entries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  /* 🔒 2 rader á 24px + 1 gap */
+  max-height: calc(2 * 24px + 6px);
+  overflow: hidden;
+
+  padding-right: 24px;
+}
+
+
+
+.entry {
+  display: inline-flex;
+  align-items: center;
+
+  height: 22px;              /* 🔒 FAST HØYDE */
+  padding: 0 10px;
+
+  font-size: 0.7rem;
+  line-height: 1;
+  border-radius: 999px;
+
+  background: rgba(255,255,255,0.12);
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+
+
+
+
+.more-indicator {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  font-size: 0.65rem;
+  background: rgba(0,0,0,0.45);
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+/* ===============================
+   MONTH PICKER – MODAL
+=============================== */
+.notes-section.month {
+  position: relative;
+}
+
+.month-picker {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+
+  transform: translateX(-50%) translateY(-16px);
+  opacity: 0;
+  pointer-events: none;
+
+  z-index: 20;
+
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s cubic-bezier(.4,0,.2,1);
+}
+
+.month-picker.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+
+
+/* Selve boksen */
+.month-picker .picker-content {
+  background: rgba(26, 31, 43, 0.85);
+  backdrop-filter: blur(10px);
+
+  padding: 12px;
+  width: 200px;
+  border-radius: 16px;
+
+  box-shadow:
+    0 30px 60px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+
+  transform: translateY(-6px) scale(0.98);
+  transition: transform 0.25s ease;
+  cursor: default;
+}
+
+.month-picker.open .picker-content {
+  transform: translateY(0) scale(1);
+}
+
+#monthLabel {
+  font-family: "indie flower", cursive;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+
+/* Årsvelger */
+.month-picker .year-select {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 14px;
+    font-family: "indie flower", cursive;
+
+}
+
+.year-btn {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.year-btn:hover {
+  color: #e6e9ee;
+}
+
+#yearLabel {
+  font-family: "Indie Flower", cursive;
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+}
+
+
+
+.month-picker .year-select button {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 0.55rem;
+  cursor: pointer;
+}
+
+.month-picker .year-select button:hover {
+  color: #e6e9ee;
+}
+
+.month-picker .year-label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.month-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.month-grid button {
+  padding: 2px 0;
+  width: 100%;
+
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+
+  color: #e6e9ee;
+  font-size: 1.3rem;
+  font-weight: 400;
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+	
+	font-family: "indie flower", cursive;
+
+}
+
+.month-grid button:hover {
+  background: rgba(79,140,255,0.18);
+  border-color: rgba(79,140,255,0.35);
+}
+
+.month-grid button.active {
+  background: rgba(79,140,255,0.28);
+  border-color: rgba(79,140,255,0.55);
+  color: white;
+}
+
+/* ===============================
+   MODAL
+=============================== */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.2s ease;
+}
+
+.modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Kort */
+.modal-content {
+  background: linear-gradient(180deg, #1a1f2b, #161b26);
+  width: 100%;
+  max-width: 380px;
+  max-height: 70vh;
+
+  padding: 1.2rem;
+  border-radius: 16px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+
+  overflow-y: auto;
+  scrollbar-width: none;
+
+  box-shadow:
+    0 30px 60px rgba(0,0,0,0.55),
+    inset 0 0 0 1px rgba(255,255,255,0.06);
+
+  transform: scale(1);
+  transition: transform 0.2s ease;
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 0;
+}
+
+/* Tittel */
+#modalTitle {
+  margin: 0 0 14px 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.modal.hidden .modal-content {
+  transform: scale(0.96);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+}
+
+.modal-section {
+  display: none;
+  margin-bottom: 12px;
+}
+
+.modal-section.active {
+  display: block;
+}
+
+.modal-content label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;                     /* litt strammere */
+
+  width: 100%;
+  margin-bottom: 16px;
+
+  color: rgba(255,255,255,0.55);
+  font-size: 0.7rem;            /* 👈 hint-størrelse */
+  letter-spacing: 0.08em;       /* 👈 mer hint-følelse */
+  text-transform: uppercase;    /* 👈 tydelig “label” */
+
+  text-align: center;
+}
+
+
+
+.modal-content input{
+text-align: center;
+background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  color: inherit;
+}
+.modal-content textarea {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  color: inherit;
+text-align: left;  
+resize: vertical;}
+text-align: center;     /* 👈 matcher midtstilling */
+ width: 260px;
+  max-width: 100%;.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+ margin-top: 8px;
+}
+
+/* Modal-knapper (basis) */
+.modal-content button {
+  appearance: none;
+  border-radius: 999px;
+  padding: 5px 15px;
+
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  background: rgba(255,255,255,0.08);
+  color: #e6e9ee;
+
+  border: 1px solid rgba(255,255,255,0.14);
+
+  transition:
+    background 0.2s ease,
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    border-color 0.2s ease;
+
+  white-space: nowrap;
+}
+
+.modal-content button:hover {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.28);
+}
+
+.modal-content button:active {
+  transform: translateY(1px);
+}
+
+/* Sekundærknapp */
+button.secondary {
+  padding: 5px 14px;
+  font-size: 0.72rem;
+  line-height: 1;
+  border-radius: 999px;
+
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #cfd4dc;
+}
+
+button.secondary:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+/* Danger (samme som din – beholdt) */
+button.danger {
+  background: none;
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.4);
+}
+
+button.danger:hover {
+  background: rgba(255, 107, 107, 0.25);
+}
+
+/* Startvalg i modal */
+#modalStart {
+  display: flex;
+  gap: 10px;
+}
+
+#modalStart button {
+  flex: 1;
+  padding: 5px 10px;
+  border-radius: 12px;
+
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.16);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  text-align: center;
+}
+
+#modalStart button:hover {
+  background: rgba(79,140,255,0.25);
+  border-color: rgba(79,140,255,0.45);
+}
+
+/* Save-knapper */
+#saveBtn,
+#saveAllBtn {
+  background: linear-gradient(
+    180deg,
+    rgba(79,140,255,0.9),
+    rgba(79,140,255,0.7)
+  );
+  border-color: rgba(79,140,255,0.9);
+  color: white;
+}
+
+#saveBtn:hover,
+#saveAllBtn:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(79,140,255,1),
+    rgba(79,140,255,0.85)
+  );
+}
+
+/* ===============================
+   MODAL – VIEW / EDIT
+=============================== */
+#viewContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.view-item {
+  padding: 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.view-item h4 {
+  margin: 0 0 4px 0;
+  font-size: 0.9rem;
+}
+
+.view-item p {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+#editContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.edit-card {
+  padding: 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.edit-card input,
+.edit-card textarea {
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.edit-card .delete-entry {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+/* ===============================
+   ANIMASJONER
+=============================== */
+@keyframes entryFade {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes weekTextPulse {
+  0%   { transform: scale(1); color: #e6e9ee; }
+  50%  { transform: scale(1.15); color: #60a5fa; }
+  100% { transform: scale(1); color: #e6e9ee; }
+}
+
+@keyframes timeSpin {
+  from { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.05); }
+  to   { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(79,140,255,0.6); }
+  100% { box-shadow: 0 0 0 4px rgba(79,140,255,0); }
+}
+
+/* ===============================
+   TILGJENGELIGHET / REDUSERT BEVEGELSE
+=============================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.modal.view-only #modalView {
+  pointer-events: auto;
+}
+
+.modal.view-only #modalStart,
+.modal.view-only #modalEdit {
+  pointer-events: none;
+}
+/* Stikkord / Beskrivelse: kun i NY oppføring */
+#modalEdit label {
+  display: none;
+}
+
+.modal.create #modalEdit label {
+  display: flex;
+}
+
+/* ===============================
+   FELLES: SKJUL ELEMENT (brukes av infoModal)
+=============================== */
+.hidden {
+  display: none !important;
+}
+
+/* ===============================
+   INFO-MODAL (klikk på stikkord)
+=============================== */
+.info-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.info-content {
+  background: #1a1f2b;
+  padding: 1.1rem;
+  border-radius: 14px;
+
+  width: 100%;
+  max-width: 380px;
+
+  text-align: center;
+
+  box-shadow:
+    0 30px 60px rgba(0,0,0,0.5),
+    inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+.info-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.05rem;
+}
+
+.info-content p {
+  margin: 0 0 12px 0;
+  font-size: 0.85rem;
+  opacity: 0.9;
+  white-space: pre-wrap;
+}
+
+#infoModalClose {
+  appearance: none;
+  border-radius: 999px;
+  padding: 5px 14px;
+
+  font-size: 0.75rem;
+  cursor: pointer;
+
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #cfd4dc;
+}
+
+#infoModalClose:hover {
+  background: rgba(255,255,255,0.12);
+}
+.notes-section.quote {
+  font-style: italic;
+  font-size: 0.85rem;
+  opacity: 0.85;
+  line-height: 1.4;
+}
+.notes-section.figure {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.calendar-figure {
+  max-width: 160px;
+  height: auto;
+}
+
+font-size: clamp(min, fleksibel, max)
+
+@media (max-width: 1024px) {
+
+  body {
+    padding: 1rem;
+  }
+
+  .calendar-page {
+    flex-direction: column;
+  }
+
+  .calendar-notes {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .notes-section {
+    flex: 1 1 45%;
+  }
+
+  .notes-section.free {
+    flex: 1 1 100%;
+  }
+}
+@media (max-width: 768px) {
+
+  body {
+    padding: 0.75rem;
+  }
+
+  /* Kalender-grid blir horisontalt scrollbar */
+  .calendar-container {
+    overflow-x: auto;
+  }
+
+  .calendar-grid {
+    grid-template-columns: 90px repeat(4, minmax(120px, 1fr));
+    min-width: 600px;
+  }
+
+  .cell {
+    height: 70px;
+    padding: 8px;
+  }
+
+  .header .cell.name {
+    font-size: 1.2rem;
+  }
+
+  .entries {
+    grid-template-columns: 1fr;
+    font-size: 0.75rem;
+  }
+
+  /* Høyre kolonne → én kolonne */
+  .calendar-notes {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .notes-section {
+    width: 100%;
+  }
+
+  /* Modal full mobilbredde */
+  .modal-content,
+  .info-content {
+    max-width: 95vw;
+  }
+
+  button {
+    min-height: 44px;
+  }
+}
+@media (hover: none) {
+  .cell-click:hover {
+    background: none;
+    box-shadow: none;
+    transform: none;
+  }
+}
+@media (max-width: 768px) {
+  .entry {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+}
+@media (max-width: 768px) {
+  .entry {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+
+  .entries {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
+/* Skjul stikkord/beskrivelse som standard */
+.create-only {
+  display: none;
+}
+
+/* Vis kun i Ny oppføring */
+.modal.create .create-only {
+  display: block;
+}
+#modalEdit > label {
+  display: none;
+}
+.modal.create #modalEdit > label {
+  display: flex;
+}
+#personSelector {
+  display: none;
+}
+
+.modal.create #personSelector,
+.modal.edit #personSelector {
+  display: block;
+}
+#editContent {
+  display: none;
+}
+
+.modal.edit #editContent {
+	gap: 20px;
+  display: block;
+}
+
+#personSelector {
+  display: none;
+}
+
+.modal.create #personSelector,
+.modal.edit #personSelector {
+  display: block;
+}
+#editContent {
+  display: none;
+}
+
+/* Container for redigeringskort */
+.modal.edit #editContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;                 /* 👈 mer luft mellom kortene */
+  margin-top: 8px;
+  width: 100%;
+}
+.modal.edit #editContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal.edit .edit-card {
+  padding: 16px;
+}
+.modal.edit .edit-card {
+  margin-bottom: 20px;
+}
+.modal.edit .edit-card {
+  padding: 10px;
+}
+.modal.edit .edit-card .delete-entry {
+  align-self: flex-end;
+
+  padding: 4px 10px;
+  border-radius: 999px;
+
+  background: rgba(255, 107, 107, 0.12);
+  border: 1px solid rgba(255, 107, 107, 0.35);
+
+  color: #ff6b6b;
+  font-size: 0.7rem;
+
+  cursor: pointer;
+}
+.entry {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 768px) {
+  .entry {
+    max-width: calc(100% - 4px);
+    font-size: 0.7rem;
+  }
+}
+/* ===============================
+   UKENS NOTATER – BESKJEDKORT
+=============================== */
+
+.notes-section.free textarea {
+  min-height: 140px;
+  padding: 10px 12px;
+
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+
+  color: #e6e9ee;
+  font-size: 0.8rem;
+  line-height: 1.5;
+
+  resize: vertical;
+}
+
+/* Litt roligere fokus */
+.notes-section.free textarea:focus {
+  outline: none;
+  border-color: rgba(79,140,255,0.5);
+  box-shadow: 0 0 0 1px rgba(79,140,255,0.25);
+}
+#monthLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  font-size: 1.8rem;
+  color: #b84a4a;
+    font-weight: 900;
+
+}
+
+#monthLabel::after {
+  content: attr(data-year);
+  font-size: 1.8rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.45);
+}
+
+/* Ny oppføring – egen font på NAVN-feltet */
+.modal.create #textInput {
+  font-family: "Indie Flower", cursive;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+/* ===============================
+   PERSONVELGER – NY OPPFØRING
+   (overstyr global label-regel)
+================================ */
+
+/* Container: legg personer ved siden av hverandre */
+.modal.create #personSelector {
+  display: flex;
+flex-wrap: nowrap;
+  justify-content: center;
+  gap: 14px 24px;
+}
+
+/* Hver person: checkbox + navn horisontalt */
+.modal.create #personSelector label {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+
+  gap: 6px;
+  width: auto;
+  margin: 0;
+  white-space: nowrap;
+}

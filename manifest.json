@@ -1,0 +1,16 @@
+{
+  "name": "Familiekalender",
+  "short_name": "Kalender",
+  "description": "En enkel familiekalender",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f131a",
+  "theme_color": "#1a1f2b",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
