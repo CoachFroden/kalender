@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<!-- PWA / iOS APP -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Familiekalender">
+
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a1428">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0,
+               viewport-fit=cover, user-scalable=no">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="manifest" href="manifest.json">
+
+<title>Familiekalender</title>
+
+<style>
+/* ======================================================
+   THEME – GLASS / MATCHER bilen.html
+   ====================================================== */
+
+:root{
+  --bg: rgba(10,20,40,0.55);
+  --card: rgba(20,40,80,0.45);
+  --card-soft: rgba(20,40,80,0.35);
+
+  --text: #e6f3ff;
+  --muted: rgba(230,243,255,0.7);
+
+  --accent: #9fd6ff;
+  --accent-strong: #cfeaff;
+
+  --border: rgba(150,210,255,0.45);
+  --glow: rgba(120,190,255,0.35);
+
+  --radius: 22px;
+}
+
+*{
+  box-sizing: border-box;
+  font-family: system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+}
+
+/* ======================================================
+   BASE
+   ====================================================== */
+
+body{
+  margin:0;
+  height:100vh;
+  overflow:hidden;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+
+  background:
+    linear-gradient(rgba(10,20,40,0.55), rgba(10,20,40,0.55)),
+    url("winter.png") center / cover no-repeat fixed;
+
+  color: var(--text);
+}
+
+/* ======================================================
+   PAGE LAYOUT
+   ====================================================== */
+
+.page{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+}
+
+.header{
+  padding:14px 16px 8px;
+}
+
+.header h1{
+  margin:0;
+  font-size:26px;
+}
+
+.header .sub{
+  font-size:13px;
+  color:var(--muted);
+}
+
+.app{
+  flex:1;
+  min-height:0;
+  display:grid;
+  grid-template-columns:340px 1fr;
+  gap:14px;
+  padding:0 14px 14px;
+}
+
+/* ======================================================
+   GLASS CARDS
+   ====================================================== */
+
+.panel,
+.calendar,
+.modal{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  box-shadow: 0 0 20px var(--glow);
+}
+
+/* ======================================================
+   PANEL (PLANLEGGING)
+   ====================================================== */
+
+.panel{
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.panel h2{
+  margin:0 0 4px;
+  font-size:17px;
+}
+
+label{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.person-select{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.person-select label{
+  font-size:13px;
+}
+
+/* ======================================================
+   INPUTS
+   ====================================================== */
+
+input[type="text"],
+input[type="date"],
+input[type="time"],
+input[type="number"]{
+  padding:9px 12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background: rgba(10,30,60,0.6);
+  color: var(--text);
+  font-size:14px;
+}
+
+/* ======================================================
+   BUTTONS – GLASS
+   ====================================================== */
+
+button{
+  padding:9px 14px;
+  border-radius:999px;
+  border:1px solid var(--border);
+
+  background: rgba(20,40,80,0.45);
+  color: var(--accent-strong);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  box-shadow: 0 0 16px var(--glow);
+
+  font-size:14px;
+  cursor:pointer;
+  transition: transform .15s, box-shadow .3s;
+}
+
+button:active{
+  transform: scale(.97);
+}
+
+button.secondary{
+  opacity:.85;
+}
+
+/* ======================================================
+   CALENDAR
+   ====================================================== */
+
+.calendar{
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-height:0;
+  overflow-y:auto;
+  scrollbar-width:none;
+}
+
+.calendar::-webkit-scrollbar{ display:none; }
+
+.cal-top{
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.view-toggle,
+.week-nav{
+  display:flex;
+  gap:6px;
+}
+
+.week-label{
+  font-size:13px;
+  color:var(--muted);
+  white-space:nowrap;
+}
+
+/* ======================================================
+   PERSON FILTERS
+   ====================================================== */
+
+.filters{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.person-filter{
+  padding:4px 8px;
+  border-radius:999px;
+  color:white;
+  cursor:pointer;
+  opacity:.35;
+  font-size:12px;
+  line-height:1;
+}
+
+.person-filter.active{ opacity:1; }
+
+/* ======================================================
+   RANGE
+   ====================================================== */
+
+.range{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+/* ======================================================
+   LIST VIEW
+   ====================================================== */
+
+.day h3{
+  margin:10px 0 4px;
+  font-size:15px;
+  border-bottom:1px solid rgba(255,255,255,0.15);
+  padding-bottom:4px;
+}
+
+.entry{
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 18px;
+
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+
+  color: white;
+
+  background: rgba(20,40,80,0.35); /* fallback */
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255,255,255,0.18);
+
+  box-shadow:
+    0 0 18px rgba(0,0,0,0.25),
+    inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+.actions button{
+  padding:4px 6px;
+  background: rgba(255,255,255,0.18);
+  border:none;
+  box-shadow:none;
+}
+
+/* ======================================================
+   WEEK VIEW
+   ====================================================== */
+
+.week-grid{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:8px;
+}
+
+.week-col{
+  background: var(--card-soft);
+  border-radius:14px;
+  padding:8px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.week-col h4{
+  margin:0;
+  font-size:12px;
+  color:var(--muted);
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,0.15);
+  padding-bottom:4px;
+}
+
+.week-card{
+  border-radius:14px;
+  padding:6px;
+  color:white;
+  display:flex;
+  justify-content:space-between;
+  gap:6px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.25);
+}
+
+/* ======================================================
+   TODAY MARKING
+   ====================================================== */
+
+.today-day{
+  background: rgba(159,214,255,0.08);
+  border-radius:14px;
+  padding:6px;
+}
+
+.today-label{
+  font-size:11px;
+  color: var(--accent);
+  font-weight:600;
+  margin-left:6px;
+}
+
+/* ======================================================
+   MODAL
+   ====================================================== */
+
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background: rgba(5,10,20,0.6);
+  backdrop-filter: blur(6px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+
+.modal-overlay.hidden{
+  opacity:0;
+  pointer-events:none;
+}
+
+.modal{
+  padding:16px;
+  width:300px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.modal-section{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+}
+
+#modalPersonSelect{
+  margin-left:14px;
+}
+
+/* ===============================
+   KALENDER – KONTROLLER (FIKSET)
+   =============================== */
+
+/* Felles luft mellom seksjonene */
+.cal-top,
+.filters,
+.range {
+  margin-bottom: 14px;
+}
+
+/* Liste / Uke */
+.view-toggle {
+  display: flex;
+  gap: 12px;
+}
+
+.person-filter{
+  padding: 6px 12px;
+  border-radius: 999px;
+
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+
+  cursor: pointer;
+
+  background: rgba(20,40,80,0.35);           /* fallback */
+  border: 1px solid rgba(150,210,255,0.45);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  box-shadow:
+    0 0 10px rgba(120,190,255,0.25),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+
+  color: white;
+  opacity: .45;
+
+  transition:
+    opacity .2s,
+    box-shadow .3s,
+    transform .15s;
+}
+
+.person-filter.active{
+  opacity: 1;
+  box-shadow:
+    0 0 14px rgba(120,190,255,0.45),
+    inset 0 0 0 1px rgba(255,255,255,0.12);
+}
+
+.person-filter:active{
+  transform: scale(.96);
+}
+
+
+/* 7 / 14 / 30 / År */
+.range {
+  display: flex;
+  gap: 12px;
+}
+
+/* Litt mer symmetrisk knappestørrelse */
+.view-toggle button,
+.range button {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Valgfri polish */
+.view-toggle button:hover,
+.range button:hover,
+.person-filter:hover {
+  filter: brightness(1.1);
+}
+/* ===============================
+   KALENDER – MIDTSTILLING
+   =============================== */
+
+.view-toggle,
+.filters,
+.range {
+  justify-content: center;
+}
+
+.view-toggle{
+  grid-column: 2;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.week-nav{
+  grid-column: 3;
+  justify-self: end;
+}
+
+
+/* ======================================================
+   RESPONSIVE
+   ====================================================== */
+
+@media (max-width:768px){
+  .app{
+    grid-template-columns:1fr;
+    grid-template-rows:auto minmax(0,1fr);
+  }
+}
+
+@media (max-width:900px) and (orientation:landscape){
+  .app{
+    grid-template-columns:300px 1fr;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  deleteDoc,
+  updateDoc,   // ← LEGG TIL DENNE
+  query,
+  orderBy,
+  onSnapshot,
+  getDocs,
+  writeBatch,
+  where
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+
+
+  const firebaseConfig = {
+  apiKey: "AIzaSyCTdIxUoPHJITHsfCX0ieYbBZwEgjy_A4g",
+  authDomain: "kalender-afb31.firebaseapp.com",
+  projectId: "kalender-afb31",
+  storageBucket: "kalender-afb31.firebasestorage.app",
+  messagingSenderId: "273646807266",
+  appId: "1:273646807266:web:e11d591136e4406c0956bb",
+  measurementId: "G-PJ5GVRYKCF"
+};
+
+  window.firebaseApp = initializeApp(firebaseConfig);
+  window.db = getFirestore(window.firebaseApp);
+  window.collection = collection;
+  window.addDoc = addDoc;
+  window.doc = doc;
+  window.deleteDoc = deleteDoc;
+  window.getDocs = getDocs;
+  window.writeBatch = writeBatch;
+  window.where = where;
+  window.query = query;
+
+
+
+
+</script>
+
+
+<div class="page">
+
+<div class="header">
+  <h1 id="yearTitle"></h1>
+  <div class="sub" id="todayLabel"></div>
+</div>
+
+<!-- ===== MODAL ===== -->
+<div id="modalOverlay" class="modal-overlay hidden">
+  <div class="modal">
+    <h3 id="modalTitle"></h3>
+
+    <div class="modal-section">
+      <strong>Hvem gjelder det for?</strong>
+      <label><input type="radio" name="scopePerson" value="one" checked> Kun denne</label>
+      <label><input type="radio" name="scopePerson" value="some"> Valgte</label>
+      <div id="modalPersonSelect"></div>
+    </div>
+
+    <div class="modal-section" id="dateScopeSection">
+      <strong>Hvor langt gjelder det?</strong>
+      <label><input type="radio" name="scopeDate" value="one" checked> Kun denne</label>
+      <label><input type="radio" name="scopeDate" value="all"> Alle fremtidige</label>
+    </div>
+
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeModal()">Avbryt</button>
+      <button id="modalConfirmBtn">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+
+<!-- ===== PLANLEGGING ===== -->
+<div class="panel">
+  <h2>Planlegging</h2>
+
+  <input type="date" id="date">
+
+  <div class="person-select" id="personSelect"></div>
+
+  <label>Beskrivelse</label>
+  <input type="text" id="title">
+
+  <label><input type="checkbox" id="repeat"> Gjentas hver uke</label>
+
+  <div id="repeatEndWrapper" style="display:none">
+    <label>Gjentas til</label>
+    <input type="date" id="repeatEnd">
+  </div>
+
+  <button onclick="saveEntry()">Lagre</button>
+  <button class="secondary" onclick="toggleCalendar()" id="toggleCalendarBtn">Skjul kalender</button>
+</div>
+
+<!-- ===== KALENDER ===== -->
+<div class="calendar">
+  <div id="calendarContent">
+
+    <div class="cal-top">
+      <div class="view-toggle">
+        <button id="btnList" class="active" onclick="setView('list')">Liste</button>
+        <button id="btnWeek" onclick="setView('week')">Uke</button>
+      </div>
+
+      <div class="week-nav" id="weekNav" style="display:none">
+        <button onclick="shiftWeek(-7)">←</button>
+        <div class="week-label" id="weekLabel"></div>
+        <button onclick="shiftWeek(7)">→</button>
+      </div>
+    </div>
+
+    <div class="filters" id="personFilters"></div>
+
+    <div class="range" id="rangeRow">
+      <button data-days="7">7</button>
+      <button data-days="14">14</button>
+      <button data-days="30" class="active">30</button>
+      <button data-days="365">År</button>
+    </div>
+
+    <div id="entries"></div>
+
+  </div>
+</div>
+
+</div>
+</div>
+
+<script>
+/* ===== HEADER ===== */
+const now = new Date();
+document.getElementById("yearTitle").textContent = "Kalender " + now.getFullYear();
+document.getElementById("todayLabel").textContent =
+  now.toLocaleDateString("no-NO",{weekday:"long",day:"numeric",month:"long"});
+
+/* ===== DATA ===== */
+const persons = [
+  {name:"Theodor",color:"#4fc3f7"},
+  {name:"Tobias",color:"#81c784"},
+  {name:"Vibeke",color:"#ba68c8"},
+  {name:"Frode",color:"#ffb74d"}
+];
+
+let entries = [];
+let activePersons = new Set(persons.map(p=>p.name));
+let daysAhead = 30;
+let currentView = "list";
+let weekStart = startOfWeek(new Date());
+let calendarVisible = true;
+
+let modalCallback = null;
+let editScope = null;
+
+/* ===== INIT ===== */
+const dateInput = document.getElementById("date");
+dateInput.valueAsDate = new Date();
+
+const personSelect = document.getElementById("personSelect");
+persons.forEach(p=>{
+  const lbl = document.createElement("label");
+  lbl.innerHTML = `<input type="checkbox" value="${p.name}" checked> ${p.name}`;
+  personSelect.appendChild(lbl);
+});
+
+document.getElementById("repeat").onchange = e=>{
+  document.getElementById("repeatEndWrapper").style.display =
+    e.target.checked ? "block" : "none";
+};
+
+document.querySelectorAll(".range button").forEach(b=>{
+  b.onclick = ()=>{
+    daysAhead = +b.dataset.days;
+    document.querySelectorAll(".range button").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    render();
+  };
+});
+
+/* ===== TOGGLE CALENDAR ===== */
+function toggleCalendar(){
+  calendarVisible = !calendarVisible;
+  document.getElementById("calendarContent").style.display =
+    calendarVisible ? "block" : "none";
+  document.getElementById("toggleCalendarBtn").textContent =
+    calendarVisible ? "Skjul kalender" : "Vis kalender";
+}
+
+/* ===== VIEW ===== */
+function setView(v){
+  currentView = v;
+  document.getElementById("btnList").classList.toggle("active", v==="list");
+  document.getElementById("btnWeek").classList.toggle("active", v==="week");
+  document.getElementById("rangeRow").style.display = v==="list" ? "flex" : "none";
+  document.getElementById("weekNav").style.display = v==="week" ? "flex" : "none";
+  updateWeekLabel();
+  render();
+}
+
+function shiftWeek(days){
+  weekStart.setDate(weekStart.getDate()+days);
+  updateWeekLabel();
+  render();
+}
+
+function updateWeekLabel(){
+  const end = new Date(weekStart);
+  end.setDate(end.getDate()+6);
+  document.getElementById("weekLabel").textContent =
+    `Uke ${getISOWeekNumber(weekStart)} · ${
+      weekStart.toLocaleDateString("no-NO",{day:"numeric",month:"short"})
+    } – ${
+      end.toLocaleDateString("no-NO",{day:"numeric",month:"short"})
+    }`;
+}
+
+/* ===== SAVE (FAKTISKE GJENTAGELSER) ===== */
+function saveEntry(){
+
+  const repeat = document.getElementById("repeat").checked;
+  const seriesId = repeat ? crypto.randomUUID() : null;
+
+  const title = document.getElementById("title").value || "Aktivitet";
+  const repeatEnd = document.getElementById("repeatEnd").value;
+  const startDate = new Date(document.getElementById("date").value);
+  const selected =
+    [...personSelect.querySelectorAll("input:checked")].map(i => i.value);
+
+  if (!repeat) {
+    selected.forEach(person => {
+      saveEntryToFirebase({
+        date: toISO(startDate),
+        title,
+        person,
+        seriesId
+      });
+    });
+    return;
+  }
+
+  const end = new Date(repeatEnd);
+  let d = new Date(startDate);
+
+  while (d <= end) {
+    selected.forEach(person => {
+      saveEntryToFirebase({
+        date: toISO(d),
+        title,
+        person,
+        seriesId
+      });
+    });
+    d.setDate(d.getDate() + 7);
+  }
+}
+
+  // =========================
+  // NY OPPFØRING (KORREKT)
+  // =========================
+  const repeat = document.getElementById("repeat").checked;
+  const seriesId = repeat ? crypto.randomUUID() : null;
+
+  const title = document.getElementById("title").value || "Aktivitet";
+  const repeatEnd = document.getElementById("repeatEnd").value;
+  const startDate = new Date(document.getElementById("date").value);
+  const selected =
+    [...personSelect.querySelectorAll("input:checked")].map(i => i.value);
+
+  // Ingen gjentagelse
+  if (!repeat) {
+    selected.forEach(person => {
+      saveEntryToFirebase({
+        date: toISO(startDate),
+        title,
+        person,
+        seriesId
+      });
+    });
+    return;
+  }
+
+  // Gjentagelse
+  const end = new Date(repeatEnd);
+  let d = new Date(startDate);
+
+  while (d <= end) {
+    selected.forEach(person => {
+      saveEntryToFirebase({
+        date: toISO(d),
+        title,
+        person,
+        seriesId
+      });
+    });
+    d.setDate(d.getDate() + 7);
+  }
+}
+
+
+async function updateEntryInFirebase(id, updates){
+  try{
+    await updateDoc(doc(window.db, "entries", id), updates);
+    console.log("✏️ Oppdatert i Firebase:", id);
+  }catch(err){
+    console.error("❌ Kunne ikke oppdatere:", err);
+  }
+}
+
+
+async function saveEntryToFirebase({ date, title, person, seriesId }) {
+  try {
+    const ref = await addDoc(collection(window.db, "entries"), {
+      date,
+      title,
+      person,
+      seriesId: seriesId || null,
+      createdAt: new Date()
+    });
+    console.log("✅ Lagret i Firebase:", ref.id);
+  } catch (err) {
+    console.error("❌ Firebase FEIL:", err);
+  }
+}
+
+
+async function deleteEntryFromFirebase(id){
+  try{
+    await deleteDoc(doc(window.db, "entries", id));
+    console.log("🗑 Slettet i Firebase:", id);
+  }catch(err){
+    console.error("❌ Kunne ikke slette i Firebase:", err);
+    alert("Kunne ikke slette i Firebase – se konsollen");
+  }
+}
+
+/* ===== EDIT / DELETE ===== */
+function editEntry(id){
+  const entry = entries.find(e => e.id === id);
+  if (!entry) return;
+
+  editingEntry = entry;
+
+  // Fyll skjema
+  document.getElementById("title").value = entry.title;
+  document.getElementById("date").value = entry.date;
+
+  [...personSelect.querySelectorAll("input")].forEach(cb => {
+    cb.checked = cb.value === entry.person;
+  });
+
+  // Skru av gjentagelse ved redigering
+  document.getElementById("repeat").checked = false;
+  document.getElementById("repeatEndWrapper").style.display = "none";
+
+  // Endre knappetekst
+  const btn = document.querySelector(".panel button");
+  btn.textContent = "Lagre redigering";
+
+  // Valgfritt: scroll til toppen
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function deleteEntry(id){
+  const entry = entries.find(x => x.id === id);
+  if(!entry) return;
+
+  openModal(
+    { title: "Slett aktivitet", hasRepeat: !!entry.seriesId },
+    (scope) => {
+      deleteEntriesByScope(entry, scope);
+    }
+  );
+}
+
+async function deleteEntriesByScope(entry, scope){
+  // UX-fiks: "Alle personer" → gir ikke mening kun på én dato i serie
+  if (scope.personScope === "all" && !scope.futureFromDate) {
+    scope.onlyThisDate = false;
+    scope.futureFromDate = true;
+  }
+
+  const col = collection(window.db, "entries");
+  let q = null;
+
+  if (entry.seriesId) {
+    q = query(col, where("seriesId", "==", entry.seriesId));
+  } else {
+    // Ikke en serie => slett kun dette dokumentet
+    await deleteEntryFromFirebase(entry.id);
+    return;
+  }
+
+  if (scope.onlyThisDate) {
+    q = query(q, where("date", "==", entry.date));
+  } else if (scope.futureFromDate) {
+    q = query(q, where("date", ">=", entry.date));
+  }
+
+  if (scope.personScope === "one") {
+    q = query(q, where("person", "==", entry.person));
+  } else if (scope.personScope === "some") {
+    const list = scope.selectedPersons || [];
+    if (list.length === 0) return;
+    if (list.length > 10) {
+      alert("Du kan maks velge 10 personer i bulk-operasjon.");
+      return;
+    }
+    q = query(q, where("person", "in", list));
+  }
+  // "all" => ingen personfilter
+
+  const snap = await getDocs(q);
+
+  console.log("🧹 DELETE scope:", scope);
+  console.log("🧹 DELETE entry:", {
+    id: entry.id,
+    seriesId: entry.seriesId,
+    date: entry.date,
+    person: entry.person
+  });
+  console.log("🧹 DELETE matched docs:", snap.size);
+
+  const docs = snap.docs;
+  const CHUNK = 450;
+  for (let i = 0; i < docs.length; i += CHUNK) {
+    const batch = writeBatch(window.db);
+    docs.slice(i, i + CHUNK).forEach(d => {
+      batch.delete(doc(window.db, "entries", d.id));
+    });
+    await batch.commit();
+  }
+}
+
+async function updateEntriesByScope(entry, scope, updates){
+  const col = collection(window.db, "entries");
+  let q = null;
+
+  if (entry.seriesId) {
+    q = query(col, where("seriesId", "==", entry.seriesId));
+  } else {
+    await updateEntryInFirebase(entry.id, updates);
+    return;
+  }
+
+  if (scope.onlyThisDate) {
+    q = query(q, where("date", "==", entry.date));
+  } else if (scope.futureFromDate) {
+    q = query(q, where("date", ">=", entry.date));
+  }
+
+  if (scope.personScope === "one") {
+    q = query(q, where("person", "==", entry.person));
+  } else if (scope.personScope === "some") {
+    const list = scope.selectedPersons || [];
+    if (list.length === 0) return;
+    if (list.length > 10) {
+      alert("Maks 10 personer i bulk-redigering.");
+      return;
+    }
+    q = query(q, where("person", "in", list));
+  }
+
+  const snap = await getDocs(q);
+
+  const docs = snap.docs;
+  const CHUNK = 450;
+  for (let i = 0; i < docs.length; i += CHUNK) {
+    const batch = writeBatch(window.db);
+    docs.slice(i, i + CHUNK).forEach(d => {
+      batch.update(doc(window.db, "entries", d.id), updates);
+    });
+    await batch.commit();
+  }
+
+  console.log("✏️ Oppdatert", docs.length, "dokumenter");
+}
+
+/* ===== MODAL ===== */
+const modalPersonSelect = document.getElementById("modalPersonSelect");
+
+function buildModalPersonSelect(){
+  modalPersonSelect.innerHTML = "";
+  persons.forEach(p => {
+    const lbl = document.createElement("label");
+    lbl.innerHTML = `<input type="checkbox" value="${p.name}"> ${p.name}`;
+    modalPersonSelect.appendChild(lbl);
+  });
+}
+
+function openModal({title,hasRepeat},cb){
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("dateScopeSection").style.display = hasRepeat ? "flex" : "none";
+  modalCallback = cb;
+
+  buildModalPersonSelect();
+  modalPersonSelect.style.display = "none";
+
+  document.querySelector("input[name='scopePerson'][value='one']").checked = true;
+  document.querySelector("input[name='scopeDate'][value='one']").checked = true;
+
+  document.getElementById("modalOverlay").classList.remove("hidden");
+}
+
+function closeModal(){
+  document.getElementById("modalOverlay").classList.add("hidden");
+  modalCallback = null;
+}
+
+document.querySelectorAll("input[name='scopePerson']").forEach(r=>{
+  r.onchange = () => {
+    modalPersonSelect.style.display =
+      r.value === "some" && r.checked ? "block" : "none";
+  };
+});
+
+document.getElementById("modalConfirmBtn").onclick = () => {
+  const personScope =
+    document.querySelector("input[name='scopePerson']:checked").value;
+
+  const selectedPersons =
+    [...modalPersonSelect.querySelectorAll("input:checked")].map(i => i.value);
+
+  const sd = document.querySelector("input[name='scopeDate']:checked");
+
+  const onlyThisDate = sd ? sd.value === "one" : true;
+  const futureFromDate = sd ? sd.value === "all" : false;
+
+  if (modalCallback) {
+    modalCallback({
+      personScope,
+      selectedPersons,
+      onlyThisDate,
+      futureFromDate
+    });
+  }
+
+  closeModal();
+};
+
+
+/* ===== RENDER ===== */
+function render(){
+  renderFilters();
+  currentView==="list"?renderList():renderWeek();
+}
+
+function renderFilters(){
+  const c=document.getElementById("personFilters");
+  c.innerHTML="";
+  persons.forEach(p=>{
+    const d=document.createElement("div");
+    d.className="person-filter"+(activePersons.has(p.name)?" active":"");
+    d.style.background=p.color;
+    d.textContent=p.name;
+    d.onclick=()=>{
+      activePersons.has(p.name)?activePersons.delete(p.name):activePersons.add(p.name);
+      render();
+    };
+    c.appendChild(d);
+  });
+}
+
+function renderList(){
+  const c=document.getElementById("entries");
+  c.innerHTML="";
+  const today=new Date(); today.setHours(0,0,0,0);
+  const limit=new Date(today); limit.setDate(limit.getDate()+daysAhead);
+
+  const grouped={};
+  entries.forEach(e=>{
+    const d=new Date(e.date);
+    if(d<today||d>limit||!activePersons.has(e.person)) return;
+    grouped[e.date]=grouped[e.date]||[];
+    grouped[e.date].push(e);
+  });
+
+  Object.keys(grouped).sort().forEach(date=>{
+    const day=document.createElement("div");
+    day.className="day";
+    const isToday = date === toISO(new Date());
+
+day.innerHTML = `
+  <h3>
+    ${date}
+    ${isToday ? `<span class="today-label">I dag</span>` : ""}
+  </h3>
+`;
+
+    grouped[date].forEach(e=>{
+      const p=persons.find(x=>x.name===e.person);
+      const div=document.createElement("div");
+      div.className="entry";
+      div.style.background=p.color;
+      div.innerHTML=`
+        <div><strong>${e.title}</strong><br><small>${e.person}</small></div>
+        <div class="actions">
+          <button onclick="deleteEntry('${e.id}')">🗑</button>
+        </div>`;
+      day.appendChild(div);
+    });
+    c.appendChild(day);
+  });
+}
+
+function renderWeek(){
+  const c=document.getElementById("entries");
+  c.innerHTML="";
+  const grid=document.createElement("div");
+  grid.className="week-grid";
+
+  for(let i=0;i<7;i++){
+    const d=new Date(weekStart);
+    d.setDate(d.getDate()+i);
+    const iso=toISO(d);
+    const col = document.createElement("div");
+col.className = "week-col";
+
+if (iso === toISO(new Date())) {
+  col.classList.add("today-day");
+}
+
+    col.innerHTML=`
+      <h4>
+        <span>${["man","tir","ons","tor","fre","lør","søn"][i]}</span>
+        <span>${d.toLocaleDateString("no-NO",{day:"numeric",month:"short"})}</span>
+      </h4>
+    `;
+    entries
+      .filter(e=>e.date===iso && activePersons.has(e.person))
+      .forEach(e=>{
+        const p=persons.find(x=>x.name===e.person);
+        const card=document.createElement("div");
+        card.className="week-card";
+        card.style.background=p.color;
+        card.innerHTML=`
+          <div><strong>${e.title}</strong><br><small>${e.person}</small></div>
+          <div class="actions">
+            <button onclick="editEntry('${e.id}')">✏️</button>
+            <button onclick="deleteEntry('${e.id}')">🗑</button>
+          </div>`;
+        col.appendChild(card);
+      });
+    grid.appendChild(col);
+  }
+  c.appendChild(grid);
+}
+
+/* ===== HELPERS ===== */
+function toISO(d){ return d.toISOString().split("T")[0]; }
+function startOfWeek(d){
+  const n=new Date(d); n.setHours(0,0,0,0);
+  const day=n.getDay();
+  n.setDate(n.getDate()+(day===0?-6:1-day));
+  return n;
+}
+function getISOWeekNumber(d){
+  const n=new Date(d);
+  n.setDate(n.getDate()+3-(n.getDay()+6)%7);
+  const w1=new Date(n.getFullYear(),0,4);
+  return 1+Math.round(((n-w1)/86400000-3+(w1.getDay()+6)%7)/7);
+}
+
+/* ===== INIT ===== */
+updateWeekLabel();
+render();
+</script>
+<script type="module">
+  import {
+    collection,
+    onSnapshot,
+    query,
+    orderBy
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const q = query(
+    collection(window.db, "entries"),
+    orderBy("date")
+  );
+
+  onSnapshot(q, snapshot => {
+    entries = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    render();
+  });
+</script>
+
+</body>
+</html>
